@@ -54,4 +54,7 @@ models/
 **/.ipynb_checkpoints/
 .ipynb_checkpoints/
 /guides
+**/.csv
+*.csv
+
 /Soundmaps (Sigma-Phi)/R
