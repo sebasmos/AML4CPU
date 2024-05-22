@@ -1,15 +1,14 @@
-# AML4CPU: Pytorch, River & ScikitLearn implementation.
+# AML4CPU: Implementation with PyTorch, River, and ScikitLearn
 
+### Contents
 
-### Catalog
-
-- [x] Hold-out script - experiment 1 : `run_holdout.py`
-- [x] Pre-sequential script - experiment 2 : `run_pre_sequential.py`
-- [x] Zero-shot, finetuning Lag-Llamma: `run_finetune.py`
+- [x] Hold-out Script - Experiment 1: `run_holdout.py`
+- [x] Pre-sequential Script - Experiment 2: `run_pre_sequential.py`
+- [x] Zero-shot and Fine-tuning with Lag-Llama: `run_finetune.py`
 
 ## Setting Up Your Environment
 
-Let's get started by setting up your environment. 
+Let's start by setting up your environment:
 
 1. **Create a Conda Environment:**
    ```bash
@@ -20,36 +19,46 @@ Let's get started by setting up your environment.
    ```bash
    git clone *
    cd *
-   pip install -r requirement.txt
+   pip install -r requirements.txt
    ```
-Pytorch `
-pip install clean-fid numba numpy torch==2.0.0+cu118 torchvision --force-reinstall --extra-index-url https://download.pytorch.org/whl/cu118`
 
+3. **Install PyTorch and Other Dependencies:**
+   ```bash
+   pip install clean-fid numba numpy torch==2.0.0+cu118 torchvision --force-reinstall --extra-index-url https://download.pytorch.org/whl/cu118
+   ```
 
 ## Experiments
 
-###  *Experiment 1*: Holdout evaluation.
+### Experiment 1: Holdout Evaluation
 
+Run the holdout evaluation script:
+```bash
+python run_holdout.py --output_file 'exp1' --output_folder Exp1 --num_seeds 20
+```
 
-`python run_holdout.py --output_file 'exp1' --output_folder Exp1 --num_seeds 20`
+### Experiment 2: Pre-sequential Evaluations
 
-### *Experiment 2 - pre-sequential evaluations"*: 
+Run the pre-sequential evaluation script:
+```bash
+python run_pre_sequential.py --output_file 'exp2' --eval --output_folder Exp2 --num_seeds 20
+```
 
-`python run_pre_sequential.py --output_file 'exp2' --eval --output_folder Exp2 --num_seeds 20`
+### Experiment 3: Zero-shot and Fine-tuning with Lag-Llama
 
+#### Zero-shot Testing
 
-### *Experiment 3*: Zero-shot and with fine-tuning with lag-llama
+Test zero-shot over different context lengths (32, 64, 128, 256) with and without RoPE:
+```bash
+python run_finetune.py --output_file zs --output_folder zs --model_path ./models/lag_llama_models/lag-llama.ckpt --eval_multiple_zero_shot --max_epochs 50 --num_seeds 20
+```
 
-- Test zero-shot over different context lenghts (32, 64, 128, 256) with and without RoPE: 
+#### Fine-tuning and Testing
 
-`python run_finetune.py --output_file zs --output_folder zs  --model_path ./models/lag_llama_models/lag-llama.ckpt --eval_multiple_zero_shot --max_epochs 50 --num_seeds 20`
-
-
-- Finetune and test lag-llama over different context lenghts (32, 64, 128, 256) with and without RoPE:
-
-`python run_finetune.py --output_file exp3_REAL_parallel --output_folder Exp3  --model_path ./models/lag_llama_models/lag-llama.ckpt --max_epochs 50 --num_seeds 20 --eval_multiple `
-
+Finetune and test Lag-Llama over different context lengths (32, 64, 128, 256) with and without RoPE:
+```bash
+python run_finetune.py --output_file exp3_REAL_parallel --output_folder Exp3 --model_path ./models/lag_llama_models/lag-llama.ckpt --max_epochs 50 --num_seeds 20 --eval_multiple
+```
 
 ### License
 
-This project is under the MIT license. See [LICENSE](LICENSE) for details.
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
