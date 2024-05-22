@@ -12,13 +12,13 @@ Let's start by setting up your environment:
 
 1. **Create a Conda Environment:**
    ```bash
-   conda create -n my_env python=3.10.0 -y
-   conda activate my_env
+   conda create -n AML4CPU python=3.10.12 -y
+   conda activate AML4CPU
    ```
 2. **Clone the Repository and Install Requirements:**
    ```bash
-   git clone *
-   cd *
+   git clone https://github.com/sebasmos/AML4CPU.git
+   cd AML4CPU
    pip install -r requirements.txt
    ```
 
