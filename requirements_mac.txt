@@ -1,0 +1,9 @@
+matplotlib==3.5.3
+numpy==1.21.6
+pandas==1.3.5
+river==0.21.0
+scikit_learn==0.24.2
+scipy==1.5.4
+statsmodels==0.13.5
+torch==1.13.1
+xgboost==1.6.2
