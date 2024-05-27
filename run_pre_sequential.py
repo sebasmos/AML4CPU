@@ -232,7 +232,7 @@ def plot_predictions(data_train = None,
                 print(f"training {model_name_original} model")
                 trained_model, training_time = train_river_model(model, X_train_normalized, y_train_normalized)
                 y_pred_normalized, inference_time = test_river_model(trained_model, X_test_normalized, y_test_normalized)
-                model_memory = bytes_to_mb(trained_model._raw_memory_usage)
+                model_memory = bytes_to_mb(asizeof.asizeof(trained_model))
              
             elif model_name_original in ('SGDRegressor', 'PassiveAggressive','MLP_partialfit'):
          
@@ -241,7 +241,6 @@ def plot_predictions(data_train = None,
                 model_memory = bytes_to_mb(asizeof.asizeof(trained_model))
                 
             elif model_name_original in ('LinearRegression', 'KNeighborsRegressor', 'RandomForestRegressor', 'MLPRegressor', 'SVR', 'DecisionTreeRegressor', 'AdaBoostRegressor'):
-                # Assuming it's a scikit-learn model
 
                 trained_model, training_time = train_sklearn_model(model, X_train_normalized, y_train_normalized)
                 y_pred_normalized, inference_time = test_sklearn_model(trained_model, X_test_normalized)
@@ -252,7 +251,6 @@ def plot_predictions(data_train = None,
             
             # CALCULATE METRICS
             metrics = calculate_metrics(y_test, y_pred)
-
           
             # VISUALIZATION STAGE
             if use_smoothed_res:

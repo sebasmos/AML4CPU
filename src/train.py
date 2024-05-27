@@ -127,22 +127,17 @@ def test_sklearn_model(model, X_test_normalized):
 
 def train_pytorch_model(model, X_train_normalized, y_train_normalized, attention, device):
     start_time = time.time()
-    # Convert to numpy array
     X_train_normalized, y_train_normalized = np.array(X_train_normalized), np.array(y_train_normalized)
     
-    # Reshape data 
     X_train_normalized = np.expand_dims(np.array(X_train_normalized), 2)
     y_train_normalized = np.expand_dims(np.array(y_train_normalized), 1)
     
-    # Convert data to tensors
     X_train_tensor = torch.from_numpy(X_train_normalized).float()
     y_train_tensor = torch.from_numpy(y_train_normalized).float()
     
-    # Send train data to cuda
     X_train_tensor = X_train_tensor.to(device)
     y_train_tensor = y_train_tensor.to(device)
     
-    # Reshape due to attention input 
     if attention == True:
         X_train_tensor = X_train_tensor.view(X_train_tensor.shape[2], X_train_tensor.shape[0], X_train_tensor.shape[1])
     print(f"X_train_tensor shape: {X_train_tensor.shape}")
@@ -152,10 +147,8 @@ def train_pytorch_model(model, X_train_normalized, y_train_normalized, attention
     
     for epoch in range(100):
         optimizer.zero_grad()
-        # outputs = model(X_train_tensor.to(device))
         outputs = model(X_train_tensor)
         outputs = outputs.squeeze(0)
-        # loss = criterion(outputs, y_train_tensor.to(device))
         loss = criterion(outputs, y_train_tensor)
         loss.backward()
         optimizer.step()
@@ -167,21 +160,16 @@ def train_pytorch_model(model, X_train_normalized, y_train_normalized, attention
 def test_pytorch_model(model, X_test_normalized, attention, device):
     start_time = time.time()
     
-    # Convert to numpy array
     X_test_normalized = np.array(X_test_normalized)
     X_test_normalized = np.expand_dims(np.array(X_test_normalized),2)
     
-    # Convert the data to PyTorch tensors
     X_test_tensor = torch.from_numpy(X_test_normalized).float()
     
-    # Send test data to cuda
     X_test_tensor = X_test_tensor.to(device)
     
-    # Reshape due to attention input 
     if attention == True:
         X_test_tensor = X_test_tensor.view(X_test_tensor.shape[2], X_test_tensor.shape[0], X_test_tensor.shape[1])
     
-    # Predict the CPU values for the testing data
     with torch.no_grad():
         outputs = model(X_test_tensor)
         y_pred_normalized = outputs.detach().cpu().numpy()

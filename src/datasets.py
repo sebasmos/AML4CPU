@@ -34,7 +34,6 @@ def denormalize_predictions(y_pred_normalized, normalization, scaler_y=None, y_m
     return y_pred
 
 def normalize_data(X_train, X_test, y_train, y_test):
-    # Convert input data to pandas Series if they are not
     if not isinstance(X_train, pd.DataFrame):
         X_train = pd.DataFrame(X_train, columns=X_test.columns if isinstance(X_test, pd.DataFrame) else None)
     if not isinstance(X_test, pd.DataFrame):
@@ -44,13 +43,11 @@ def normalize_data(X_train, X_test, y_train, y_test):
     if not isinstance(y_test, pd.Series):
         y_test = pd.Series(y_test, name=y_train.name if isinstance(y_train, pd.Series) else None)
 
-    # Normalize X data
     scaler_X = StandardScaler()
     scaler_X.fit(X_train)
     X_train_normalized = pd.DataFrame(scaler_X.transform(X_train), columns=X_train.columns)
     X_test_normalized = pd.DataFrame(scaler_X.transform(X_test), columns=X_test.columns)
 
-    # Normalize y data
     scaler_y = StandardScaler()
     scaler_y.fit(y_train.values.reshape(-1, 1))
     y_train_normalized = pd.Series(scaler_y.transform(y_train.values.reshape(-1, 1)).flatten(), name=y_train.name)
@@ -69,7 +66,6 @@ def load_data(data_path, small_sample=False):
     else:
         train_data_path = f"{data_path}/train_data.csv"
         test_data_path = f"{data_path}/test_data.csv"
-    # Read train and test data
     data_train = pd.read_csv(train_data_path, index_col=0)
     data_test = pd.read_csv(test_data_path, index_col=0)
 
@@ -84,16 +80,12 @@ def load_orangepi_data(data_path="./data/cpu_data_custom_adapted.csv"):
         data_train (pd.DataFrame): The training data.
         data_test (pd.DataFrame): The test data.
     """
-    # Read the data from the specified file (DATA should be defined elsewhere)
     df = pd.read_csv(data_path)
 
-    # Create a deep copy of the DataFrame to avoid modifying the original data
     df = copy.deepcopy(df)
 
-    # Keep only the relevant columns in the DataFrame
     df = df[['Date', 'CPU Core 1 Usage (%)', 'CPU Core 2 Usage (%)']]
 
-    # Rename the columns for better readability
     cols = {'Date': 'Date', 'CPU Core 1 Usage (%)': 'TARGET', 'CPU Core 2 Usage (%)': 'RAM'}
     df = df.rename(columns=cols, inplace=False)
 
@@ -107,26 +99,17 @@ def load_orangepi_data_per_hour():
         data_train (pd.DataFrame): The training data.
         data_test (pd.DataFrame): The test data.
     """
-    # Read the data from the specified file (DATA should be defined elsewhere)
     df = pd.read_csv(DATA)
 
-    # Create a deep copy of the DataFrame to avoid modifying the original data
     df = copy.deepcopy(df)
 
-    # Keep only the relevant columns in the DataFrame
     df = df[['Date', 'CPU Core 1 Usage (%)', 'CPU Core 2 Usage (%)']]
 
-    # Rename the columns for better readability
     cols = {'Date': 'date', 'CPU Core 1 Usage (%)': 'TARGET', 'CPU Core 2 Usage (%)': 'RAM'}
     df = df.rename(columns=cols, inplace=False)
-    # Convert 'date' column to timestamp and set it as the index
     df['timestamp'] = pd.to_datetime(df['date'])
     df.set_index('timestamp', inplace=True)
-
-    # Resample per hour and calculate mean
     resampled_df = df.resample('1H').mean()
-
-    # Sample 45 rows randomly from the resampled DataFrame
     sampled_df = resampled_df.sample(n=45, random_state=42)
     
     return sampled_df
