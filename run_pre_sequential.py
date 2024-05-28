@@ -260,14 +260,29 @@ def main(args):
             for seed in range(args.num_seeds):# run each seed 20 times
                 for i, winsize in enumerate(args.window_sizes):# for each seed, run all defined windows
                     models_init = get_models(seed)  # for each window, new model
+                    # Ensure models seed is different
+                    for model_name in models_init:
+                        if model_name == 'XGBRegressor':
+                            #subsample will define the % of training data to be used for each tree:hard to replicate same seeds each time
+                            random = np.random.uniform(0.5, 1)
+                            models_init[model_name]  = XGBRegressor(random_state=seed, subsample=random)
+
+                        if isinstance(models_init.get(model_name), BaseEstimator):
+                            print(f"The value for key '{model_name}' is a scikit-learn model instance.")
+                            np.random.seed(seed)
+                            models_init[model_name].set_params(random_state=seed)
+
+                        else:
+                            models_init[model_name].seed = seed
+                        
                     metrics = plot_predictions(
-                                 window_size     = winsize, 
-                                 output_file      = args.output_file, 
-                                 AUTOREGRESSIVE   = args.autoregressive,
-                                 eval             = args.eval,
-                                 models           = models_init,
-                                 model_path       = args.model_path,
-                                 seed             = seed)
+                                         window_size     = winsize, 
+                                         output_file      = args.output_file, 
+                                         AUTOREGRESSIVE   = args.autoregressive,
+                                         eval             = args.eval,
+                                         models           = models_init,
+                                         model_path       = args.model_path,
+                                         seed             = seed)
                     print(f"Seed {seed+1} and metrics: {metrics} and window: {winsize}")
                     data_list.append(pd.DataFrame(metrics))
 
