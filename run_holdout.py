@@ -71,7 +71,7 @@ def get_args_parser():
     parser.add_argument('--batch_size', default=64, type=int,
                         help='Batch size per GPU (effective batch size is batch_size * accum_iter * # gpus')
 
-    parser.add_argument('--window_sizes', default=[6,9,12,20,32,64], type=int)
+    parser.add_argument('--window_sizes', default=[6,9,12,20,32], type=int)
 
     parser.add_argument('--epochs', default=50, type=int)
     
@@ -139,89 +139,62 @@ def get_args_parser():
     return parser
 
 
-def plot_predictions(data_train=None, 
-                     data_test =None, 
-                     window_sizes= None,
-                     output_file =None,
-                     use_smoothed_res= False,
-                     NORMALIZATION   = None,
+def plot_predictions(window_size = None,
+                     output_file  = None,
+                     NORMALIZATION   = 1,
                      AUTOREGRESSIVE  = True,
                      eval = False, 
                      seed = 1, 
                      models = None,
                      timestamps_to_plot = 0,
-                     model_path = "",
-                     ):
+                     model_path = ""):
     
     os.makedirs("./outputs", exist_ok=True)
+
+    data_train, data_test = load_data(args.data_path, small_sample=args.small_sample)
     
-    pdf = PdfPages(os.path.join(f"./outputs/{args.output_folder}", args.output_file, output_file+".pdf"))
+    data_test_t = data_test.copy()
     
-    fig, axes = plt.subplots(len(window_sizes), len(models), figsize=(20, 12))
+    data_test_t.index.name = 'Date'
     
-    plt.xticks(rotation=45, fontsize=5) 
+    data_test_t['Date'] = data_test_t.index
+    
+    timestamps_to_plot = save_timestamps(data_test_t, args)
     
     results = []
 
-    for i, window_size in enumerate(window_sizes):
-
-        supervised_train_data = series_to_supervised(data_train[["target"]], n_in=window_size, n_out=1, autoregressive=AUTOREGRESSIVE)
-        supervised_test_data = series_to_supervised(data_test[["target"]], n_in=window_size, n_out=1, autoregressive=AUTOREGRESSIVE )
+    supervised_train_data = series_to_supervised(data_train[["target"]], n_in=window_size, n_out=1, autoregressive=AUTOREGRESSIVE)
+    supervised_test_data = series_to_supervised(data_test[["target"]], n_in=window_size, n_out=1, autoregressive=AUTOREGRESSIVE )
         
-        X_train = supervised_train_data.iloc[:,:-1] 
-        y_train = supervised_train_data.iloc[:,-1] 
-        X_test = supervised_test_data.iloc[:,:-1] 
-        y_test = supervised_test_data.iloc[:,-1]
-        x_min = X_train.min()
-        x_max = X_train.max()
-        y_min = y_train.min()
-        y_max = y_train.max()
+    X_train = supervised_train_data.iloc[:,:-1] 
+    y_train = supervised_train_data.iloc[:,-1] 
+    X_test = supervised_test_data.iloc[:,:-1] 
+    y_test = supervised_test_data.iloc[:,-1]
+    x_min = X_train.min()
+    x_max = X_train.max()
+    y_min = y_train.min()
+    y_max = y_train.max()
 
-        for j, (model_name_original, model) in enumerate(models.items()):
+    for j, (model_name_original, model) in enumerate(models.items()):
             
             model_cp = copy.deepcopy(model)
             
             model_name = model_name_original+"_"+"ws_"+str(window_size)
-            
-            print(f"Training {model_name}".center(60, "-"))
-            
-            if len(models)>1:
-            
-                ax = axes[i,j]
-                
-            else:
-                
-                ax = axes[i]
-            #  PRE-PROCESSING STAGE 
-            
-            # if NORMALIZATION == 0:
-            #     X_train_normalized = X_train
-            #     y_train_normalized = y_train
-            #     X_test_normalized = X_test
-            #     y_test_normalized = y_test
 
-            if NORMALIZATION == 1:
-                X_train_normalized, X_test_normalized, y_train_normalized, y_test_normalized, scaler_y = normalize_data(X_train, X_test, y_train, y_test)
-
-            # elif NORMALIZATION == 2:
-            #     X_train_normalized = mimax_norm(X_train, x_min, x_max)
-            #     y_train_normalized = mimax_norm(y_train, y_min, y_max)
-            #     X_test_normalized = mimax_norm(X_test, x_min, x_max)
-            #     y_test_normalized = mimax_norm(y_test, y_min, y_max)
-            
-            # TRAIN MODELS
+            X_train_normalized, X_test_normalized, y_train_normalized, y_test_normalized, scaler_y = normalize_data(X_train, X_test, y_train, y_test)
             
             if isinstance(model, XGBRegressor): 
                 # If XGBoost model is selected
                 trained_model, training_time = train_xgb_model(model, X_train_normalized, y_train_normalized)
                 y_pred_normalized, inference_time = test_xgb_model(trained_model, X_test_normalized)
-                # Get model storage for River models
-                # https://github.com/online-ml/river/blob/aac6318a5e9b593ac07ea55171121553d92ec712/river/base/base.py#L352-L389
-                # Return the memory usage in bytes --> bytes_to_mb
-                # model_memory = bytes_to_mb(sys.getsizeof(trained_model))
                 model_memory = bytes_to_mb(asizeof.asizeof(model))
                 
-            elif model_name_original in ('RandomForestRegressor', 'MLPRegressor', 'DecisionTreeRegressor', 'AdaBoostRegressor', 'SGDRegressor', 'PassiveAggressiveRegressor'):
+            elif model_name_original in ('RandomForestRegressor', 
+                                         'MLPRegressor', 
+                                         'DecisionTreeRegressor', 
+                                         'AdaBoostRegressor', 
+                                         'SGDRegressor', 
+                                         'PassiveAggressiveRegressor'):
                 # Assuming it's a scikit-learn model
                 trained_model, training_time = train_sklearn_model(model, X_train_normalized, y_train_normalized)
                 y_pred_normalized, inference_time = test_sklearn_model(trained_model, X_test_normalized)
@@ -234,7 +207,7 @@ def plot_predictions(data_train=None,
                 torch.backends.cudnn.benchmark =  True
                 torch.backends.cudnn.enabled =  True
                 # device = torch.device(args.device)
-                device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
+                device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
                 
                 print(model_name)
                 model_memory = 0
@@ -278,39 +251,6 @@ def plot_predictions(data_train=None,
             
             # CALCULATE METRICS
             metrics = calculate_metrics(y_test, y_pred)
-            
-            print(metrics)
-            
-            # VISUALIZATION STAGE
-            if use_smoothed_res:
-                # Smooth the y_pred using the Savitzky-Golay filter
-                window_length = 61  # Smaller window_length value
-                polyorder = 3  # Order of the polynomial fitting
-                smooth_y_pred = savgol_filter(y_pred, window_length, polyorder, mode='interp')
-                # Plot the smooth version of y_pred along with the ground truth
-                ax.plot(range(len(y_test)), y_test, label='Ground Truth')
-                ax.plot(range(len(y_test)), y_pred, label='Predicted', alpha=0.7)  # Original y_pred with alpha for transparency
-                ax.plot(range(len(y_test)), smooth_y_pred, label='Smoothed Predicted', alpha=0.7)  # Smoothed version with alpha    
-                ax.set_title(f'{model_name}\n'
-                        f'Window Size: {window_size}\n'
-                        f'Proc time: {training_time+inference_time:.2f}\n'
-                        f'MSE: {metrics["mse"]:.2f} | MAPE: {metrics["mape"]:.2f} | RMSE: {metrics["rmse"]:.2f}',
-                        fontsize=10)
-                ax.legend()
-            else: 
-                ax.set_ylabel('CPU')
-
-                ax.plot(timestamps_to_plot, y_test[-len(timestamps_to_plot):], label='Ground Truth')
-                ax.plot(timestamps_to_plot, y_pred[-len(timestamps_to_plot):], label='Predicted', alpha=0.7)  # Original y_pred with alpha for transparency
-
-                ax.legend()
-                ax.tick_params(axis='x', rotation=45, labelsize=8)
-                ax.set_xlabel('Timestamp')
-                ax.set_title(f'{model_name}\n'
-                            f'Window Size: {window_size}\n'
-                            f'Proc time: {training_time+inference_time:.2f}\n'
-                            f'MSE: {metrics["mse"]:.7f} | SMAPE: {metrics["smape"]:.2f} \n | MAPE: {metrics["mape"]:.2f} | R2: {metrics["r2"]:.2f} \n | RMSE: {metrics["rmse"]:.7f} | MAE: {metrics["mae"]:.2f} \n MASE: {metrics["mase"]:.2f}',
-                            fontsize=10)
 
             result = {
                 'Model': model_name,
@@ -329,50 +269,9 @@ def plot_predictions(data_train=None,
           
             results.append(result)
 
-    plt.xlabel('Timestamp')
-    plt.tight_layout()
-    pdf.savefig()
-    pdf.close()
 
     return results
 
-
-def train_and_evaluate(seed, args, models):
-    
-    data_train, data_test = load_data(args.data_path, small_sample=args.small_sample)
-    
-    data_test_t = data_test.copy()
-    
-    data_test_t.index.name = 'Date'
-    
-    data_test_t['Date'] = data_test_t.index
-    
-    timestamps_to_plot = save_timestamps(data_test_t, args)
-    
-    print("=" * 30)
-    print(f"|     NEW DATA Data Information for seed {seed}      |")
-    print("=" * 30)
-    print("|      Training Data:        |")
-    print("=" * 30)
-    print(f"Shape {data_train.shape} - value range: ({data_train.target.min()} - {data_train.target.max()})")
-    print("-" * 30)
-    print("|      Testing Data:         |")
-    print("=" * 30)
-    print(f"Shape {data_test.shape} - value range: ({data_train.target.min()} - {data_train.target.max()})")
-    print("-" * 30)
-
-    return plot_predictions(data_train             = data_train, 
-                                 data_test         = data_test, 
-                                 window_sizes      = args.window_sizes, 
-                                 output_file       = args.output_file, 
-                                 use_smoothed_res  = args.use_smoothed_res,
-                                 NORMALIZATION     = args.normalization,
-                                 AUTOREGRESSIVE    = args.autoregressive,
-                                 eval              = args.eval,
-                                 models            = models,
-                                 timestamps_to_plot = timestamps_to_plot,
-                                 model_path        = args.model_path,
-                                 seed              = seed)
 
     
 def main(args):
@@ -388,7 +287,7 @@ def main(args):
     models_cp = {
                 # 'XGBRegressor': XGBRegressor(random_state=0),
                 # 'LinearRegression':0,
-                'KNeighborsRegressor': KNNRegressor(), 
+                # 'KNeighborsRegressor': KNNRegressor(), 
                 # 'RandomForestRegressor': RandomForestRegressor(random_state=0),
                 # 'MLPRegressor': MLPRegressor(random_state=0),
                 # 'DecisionTreeRegressor': DecisionTreeRegressor(random_state=0),
@@ -397,7 +296,7 @@ def main(args):
                 # 'PassiveAggressiveRegressor': PassiveAggressiveRegressor(random_state=0),
                 # 'SVR': 0,
                 # 'LSTM': LSTMModel(input_size=1, num_layers=2, hidden_size=64, output_size=1),
-                # 'GRU': GRUModel(input_size=1, hidden_size=64),
+                'GRU': GRUModel(input_size=1, hidden_size=64),
                 # 'BI-LSTM': BiLSTMModel(input_size=1, hidden_size=64),
                 # 'LSTM_ATTN': 0,
                 # 'Pytorch': MyTorchModel(),
@@ -412,44 +311,50 @@ def main(args):
         for seed in range(args.num_seeds):
             
             for model_name in models_cp:
+                for i, winsize in enumerate(args.window_sizes):# for each seed, run all defined windows
+                    if model_name == 'XGBRegressor':
+                        #subsample will define the % of training data to be used for each tree:hard to replicate same seeds each time
+                        random = np.random.uniform(0.5, 1)
+                        models_cp[model_name] = XGBRegressor(random_state=seed, subsample=random)
+                    # Scikit-learn models
+                    if isinstance(models_cp.get(model_name), BaseEstimator):
+                        print(f"The value for key '{model_name}' is a scikit-learn model instance.")
+                        np.random.seed(seed)
+                        if model_name in ('RandomForestRegressor', 'MLPRegressor', 'DecisionTreeRegressor', 'AdaBoostRegressor', 'PassiveAggressiveRegressor', 'SGDRegressor'):
+                            print(model_name)
+                            models_cp[model_name].set_params(random_state=seed)
+                    # Pytorch models
+                    if isinstance(models_cp[model_name],nn.Module):
+                        print(model_name)
+                        torch.manual_seed(seed)
+                        if model_name == 'LSTM':
+                            models_cp[model_name] = LSTMModel(input_size=1, num_layers=2, hidden_size=64, output_size=1)
+                        elif model_name == 'GRU':
+                            models_cp[model_name] = GRUModel(input_size=1, hidden_size=64)
+                        elif model_name == 'BI-LSTM':
+                            models_cp[model_name] = BiLSTMModel(input_size=1, hidden_size=64)
+                        elif model_name == 'LSTM_ATTN':
+                            print(model_name)
+                        elif model_name == 'KNeighborsRegressor':
+                            models_cp[model_name] = KNNRegressor(k=5)
+                    elif model_name in ('LinearRegression','SVR'):
+                            print(model_name)
+    
+                    else:
+                        np.random.seed(seed)
+                        models_cp[model_name].seed = seed # river models
+
+                    metrics = plot_predictions(
+                                             window_size     = winsize, 
+                                             output_file      = args.output_file, 
+                                             AUTOREGRESSIVE   = args.autoregressive,
+                                             eval             = args.eval,
+                                             models           = models_cp,
+                                             model_path       = args.model_path,
+                                             seed             = seed)
                 
-                if model_name == 'XGBRegressor':
-                    #subsample will define the % of training data to be used for each tree:hard to replicate same seeds each time
-                    random = np.random.uniform(0.5, 1)
-                    models_cp[model_name] = XGBRegressor(random_state=seed, subsample=random)
-                # Scikit-learn models
-                if isinstance(models_cp.get(model_name), BaseEstimator):
-                    print(f"The value for key '{model_name}' is a scikit-learn model instance.")
-                    np.random.seed(seed)
-                    if model_name in ('RandomForestRegressor', 'MLPRegressor', 'DecisionTreeRegressor', 'AdaBoostRegressor', 'PassiveAggressiveRegressor', 'SGDRegressor'):
-                        print(model_name)
-                        models_cp[model_name].set_params(random_state=seed)
-                # Pytorch models
-                if isinstance(models_cp[model_name],nn.Module):
-                    print(model_name)
-                    torch.manual_seed(seed)
-                    if model_name == 'LSTM':
-                        models_cp[model_name] = LSTMModel(input_size=1, num_layers=2, hidden_size=64, output_size=1)
-                    elif model_name == 'GRU':
-                        models_cp[model_name] = GRUModel(input_size=1, hidden_size=64)
-                    elif model_name == 'BI-LSTM':
-                        models_cp[model_name] = BiLSTMModel(input_size=1, hidden_size=64)
-                    elif model_name == 'LSTM_ATTN':
-                        print(model_name)
-                    elif model_name == 'KNeighborsRegressor':
-                        models_cp[model_name] = KNNRegressor(k=5)
-                elif model_name in ('LinearRegression','SVR'):
-                        print(model_name)
-
-                else:
-                    np.random.seed(seed)
-                    models_cp[model_name].seed = seed # river models
-
-            metrics = train_and_evaluate(seed, args, models_cp)
-            
-            print(f"Seed {seed+1} and metrics: {metrics}")
-            
-            data_list.append(pd.DataFrame(metrics))
+                    print(f"Seed {seed+1} and metrics: {metrics} and window: {winsize}")
+                    data_list.append(pd.DataFrame(metrics))
 
         combined_df = pd.concat(data_list)
         
