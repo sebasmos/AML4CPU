@@ -160,7 +160,6 @@ def normalize_data_std(X):
     return X_normalized
 
 def normalize_data(X_train, X_test, y_train, y_test):
-    # Convert input data to pandas Series if they are not
     if not isinstance(X_train, pd.DataFrame):
         X_train = pd.DataFrame(X_train, columns=X_test.columns if isinstance(X_test, pd.DataFrame) else None)
     if not isinstance(X_test, pd.DataFrame):
