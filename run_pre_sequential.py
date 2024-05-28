@@ -233,7 +233,7 @@ def get_models(seed):
                   # 'XGBRegressor': XGBRegressor(random_state=seed),
                   'AdaptiveRandomForest': (forest.ARFRegressor(seed=seed)),
 
-                  'HoeffdingTreeRegressor': (tree.HoeffdingTreeRegressor(grace_period=200,seed=seed)),
+                  'HoeffdingTreeRegressor': (tree.HoeffdingTreeRegressor(grace_period=200)),
 
                   'HoeffdingAdaptiveTreeRegressor': tree.HoeffdingAdaptiveTreeRegressor(
                                         seed=seed),
