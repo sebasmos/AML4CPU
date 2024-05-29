@@ -73,7 +73,7 @@ def get_args_parser():
     parser.add_argument('--batch_size', default=64, type=int,
                         help='Batch size per GPU (effective batch size is batch_size * accum_iter * # gpus')
 
-    parser.add_argument('--window_sizes', default=[6,32,64], type=int)
+    parser.add_argument('--window_sizes', default=[6,9,12,20,32,64], type=int)
 
     parser.add_argument('--epochs', default=50, type=int)
     
@@ -211,7 +211,28 @@ def plot_predictions(window_size = None,
 
     return results
 
+def get_models(seed):
 
+    base_model = tree.HoeffdingTreeRegressor(grace_period=200)
+    
+    return {
+                  'SGDRegressor': SGDRegressor(random_state=seed),
+                  'PassiveAggressive':PassiveAggressiveRegressor(random_state=seed),
+                  'MLP_partialfit':MLPRegressor(random_state=seed),
+                  'XGBRegressor': XGBRegressor(random_state=seed),
+                  'AdaptiveRandomForest': (forest.ARFRegressor(seed=seed)),
+
+                  'HoeffdingTreeRegressor': (tree.HoeffdingTreeRegressor(grace_period=200)),# fix
+
+                  'HoeffdingAdaptiveTreeRegressor': tree.HoeffdingAdaptiveTreeRegressor(
+                                        seed=seed),
+                  'SRPRegressor': ensemble.SRPRegressor(
+                        model=base_model,
+                        training_method="patches",
+                        n_models=10,
+                        seed=seed
+                    )
+            }
 
 def set_random_seed(seed):
     random.seed(seed)
@@ -223,31 +244,10 @@ def set_random_seed(seed):
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
 
-def get_models(seed):
-    base_model = tree.HoeffdingTreeRegressor(grace_period=200)
-    return {
-        #SGDRegressor, ARF, HoeffdingTreeRegressor, MLP_partialfit,MLP_partialfit
-                  # 'SGDRegressor': SGDRegressor(random_state=seed),
-                  # 'PassiveAggressive':PassiveAggressiveRegressor(random_state=seed),
-                  # 'MLP_partialfit':MLPRegressor(random_state=seed),
-                  # 'XGBRegressor': XGBRegressor(random_state=seed),
-                  'AdaptiveRandomForest': (forest.ARFRegressor(seed=seed)),
-
-                  'HoeffdingTreeRegressor': (tree.HoeffdingTreeRegressor(grace_period=200)),
-
-                  'HoeffdingAdaptiveTreeRegressor': tree.HoeffdingAdaptiveTreeRegressor(
-                                        seed=seed),
-                    #https://riverml.xyz/0.21.0/api/ensemble/SRPRegressor/
-                  'SRPRegressor': ensemble.SRPRegressor(
-                        model=base_model,
-                        training_method="patches",
-                        n_models=10,
-                        seed=seed
-                    )
-            }
-
+    
+    
 def main(args):
-    set_random_seed(args.seed) 
+    
     print('job dir: {}'.format(os.path.dirname(os.path.realpath(__file__))))
 
     print("{}".format(args).replace(', ', ',\n'))
@@ -255,32 +255,37 @@ def main(args):
     cudnn.benchmark = True
 
     device = torch.device(args.device)
+    
+                    
     if args.eval:
             data_list = []
             for seed in range(args.num_seeds):# run each seed 20 times
+                set_random_seed(seed)
                 for i, winsize in enumerate(args.window_sizes):# for each seed, run all defined windows
-                    models_init = get_models(seed)  # for each window, new model
-                    # Ensure models seed is different
-                    for model_name in models_init:
+                    models_cp = get_models(seed)
+                    for model_name in models_cp:
                         if model_name == 'XGBRegressor':
-                            #subsample will define the % of training data to be used for each tree:hard to replicate same seeds each time
                             random = np.random.uniform(0.5, 1)
-                            models_init[model_name]  = XGBRegressor(random_state=seed, subsample=random)
-
-                        if isinstance(models_init.get(model_name), BaseEstimator):
-                            print(f"The value for key '{model_name}' is a scikit-learn model instance.")
+                            models_cp[model_name]  = XGBRegressor(random_state=seed, subsample=random)
+                        if isinstance(models_cp.get(model_name), BaseEstimator):
                             np.random.seed(seed)
-                            models_init[model_name].set_params(random_state=seed)
+                            print(f"The value for key '{model_name}' is a scikit-learn model instance.")
+                            models_cp[model_name].set_params(random_state=seed)
 
-                        else:
-                            models_init[model_name].seed = seed
+                        elif model_name=='HoeffdingTreeRegressor':
+                            np.random.seed(seed)
+                            print(f"The value for key '{model_name}' is a River model instance.")
+                            new_model = (tree.HoeffdingTreeRegressor(grace_period=200))
+                            new_model.seed = seed
+                        else: 
+                            models_cp[model_name].seed = seed
                         
                     metrics = plot_predictions(
                                          window_size     = winsize, 
                                          output_file      = args.output_file, 
                                          AUTOREGRESSIVE   = args.autoregressive,
                                          eval             = args.eval,
-                                         models           = models_init,
+                                         models           = models_cp,
                                          model_path       = args.model_path,
                                          seed             = seed)
                     print(f"Seed {seed+1} and metrics: {metrics} and window: {winsize}")
@@ -314,8 +319,7 @@ def main(args):
     print(summary)
     
     summary.to_csv(f'./outputs/{args.output_folder}/{args.output_file}/model_metrics_{args.output_file}.csv', index=False)
-    
-        
+   
     
 if __name__ == '__main__':
     args = get_args_parser()
