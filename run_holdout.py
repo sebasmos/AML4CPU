@@ -31,7 +31,6 @@ from sklearn.linear_model import SGDRegressor, PassiveAggressiveRegressor
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.base import BaseEstimator
 import time
-from sklearn.neural_network import MLPRegressor
 from sklearn.svm import SVR
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import AdaBoostRegressor
@@ -54,9 +53,9 @@ import src.misc as misc
 from src.misc import NativeScalerWithGradNormCount as NativeScaler
 from src.datasets import load_orangepi_data, normalize_data, series_to_supervised, structure, denormalize_predictions,load_data
 from src.metrics import symmetric_mean_absolute_percentage_error, mean_absolute_scaled_error, mean_absolute_percentage_error, mean_squared_error, mean_absolute_error, r2_score, calculate_metrics
-from src.train import train_xgb_model, test_xgb_model, train_river_model, test_river_model, train_sklearn_model, test_sklearn_model, train_pytorch_model, test_pytorch_model, train_pytorch_model_LR, test_pytorch_model_LR, test_pytorch_model_KNR
+from src.train import train_xgb_model, test_xgb_model, train_river_model, test_river_model, train_sklearn_model, test_sklearn_model, train_pytorch_model, test_pytorch_model, train_pytorch_model_LR, test_pytorch_model_LR
 from src.memory import bytes_to_mb, model_memory_usage_alternative
-from src.model import LSTMModel, GRUModel, BiLSTMModel, LSTMModelWithAttention, LinearRegression, KNNRegressor
+from src.model import LSTMModel, GRUModel, BiLSTMModel, LSTMModelWithAttention, LinearRegression
 import sys
 from pympler import asizeof
 sys.setrecursionlimit(100000) #setting recursion to avoid RecursionError: maximum recursion depth exceeded in comparison
@@ -71,7 +70,7 @@ def get_args_parser():
     parser.add_argument('--batch_size', default=64, type=int,
                         help='Batch size per GPU (effective batch size is batch_size * accum_iter * # gpus')
 
-    parser.add_argument('--window_sizes', default=[6,9,12,20,32], type=int)
+    parser.add_argument('--window_sizes', default=[6,9,12,20,32,64], type=int)
 
     parser.add_argument('--epochs', default=50, type=int)
     
@@ -145,7 +144,8 @@ def plot_predictions(window_size = None,
                      AUTOREGRESSIVE  = True,
                      eval = False, 
                      seed = 1, 
-                     models = None,
+                     model = None,
+                     model_name = None,
                      timestamps_to_plot = 0,
                      model_path = ""):
     
@@ -175,84 +175,79 @@ def plot_predictions(window_size = None,
     y_min = y_train.min()
     y_max = y_train.max()
 
-    for j, (model_name_original, model) in enumerate(models.items()):
+    # for j, (model_name_original, model) in enumerate(models.items()):
             
-            model_cp = copy.deepcopy(model)
+    model_cp = copy.deepcopy(model)
             
-            model_name = model_name_original+"_"+"ws_"+str(window_size)
+    model_name = model_name+"_"+"ws_"+str(window_size)
 
-            X_train_normalized, X_test_normalized, y_train_normalized, y_test_normalized, scaler_y = normalize_data(X_train, X_test, y_train, y_test)
+    X_train_normalized, X_test_normalized, y_train_normalized, y_test_normalized, scaler_y = normalize_data(X_train, X_test, y_train, y_test)
             
-            if isinstance(model, XGBRegressor): 
-                # If XGBoost model is selected
-                trained_model, training_time = train_xgb_model(model, X_train_normalized, y_train_normalized)
-                y_pred_normalized, inference_time = test_xgb_model(trained_model, X_test_normalized)
-                model_memory = bytes_to_mb(asizeof.asizeof(model))
+    if isinstance(model, XGBRegressor): 
+        # If XGBoost model is selected
+        trained_model, training_time = train_xgb_model(model, X_train_normalized, y_train_normalized)
+        y_pred_normalized, inference_time = test_xgb_model(trained_model, X_test_normalized)
+        model_memory = bytes_to_mb(asizeof.asizeof(model))
                 
-            elif model_name_original in ('RandomForestRegressor', 
-                                         'MLPRegressor', 
-                                         'DecisionTreeRegressor', 
-                                         'AdaBoostRegressor', 
-                                         'SGDRegressor', 
-                                         'PassiveAggressiveRegressor'):
-                # Assuming it's a scikit-learn model
-                trained_model, training_time = train_sklearn_model(model, X_train_normalized, y_train_normalized)
-                y_pred_normalized, inference_time = test_sklearn_model(trained_model, X_test_normalized)
+    elif model_name in ('RandomForestRegressor',
+                        'DecisionTreeRegressor', 
+                        'AdaBoostRegressor', 
+                        'SGDRegressor', 
+                        'PassiveAggressiveRegressor'):
+        # Assuming it's a scikit-learn model
+        trained_model, training_time = train_sklearn_model(model, X_train_normalized, y_train_normalized)
+        y_pred_normalized, inference_time = test_sklearn_model(trained_model, X_test_normalized)
                 
-                model_memory = bytes_to_mb(asizeof.asizeof(trained_model))
+        model_memory = bytes_to_mb(asizeof.asizeof(trained_model))
             
-            else:
-                print("Training Pytorch model")
-                #define pytorch model
-                torch.backends.cudnn.benchmark =  True
-                torch.backends.cudnn.enabled =  True
-                # device = torch.device(args.device)
-                device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    else:
+        print("Training Pytorch model")
+        #define pytorch model
+        torch.backends.cudnn.benchmark =  True
+        torch.backends.cudnn.enabled =  True
+        device = "cpu"
+        # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
                 
-                print(model_name)
-                model_memory = 0
-                print(f"X_train_normalized shape: {X_train_normalized.shape}")
-                print(f"y_train_normalized shape: {y_train_normalized.shape}")
-                print(f"X_test_normalized shape: {X_test_normalized.shape}")
-                torch.manual_seed(seed)
-                attention = False
-                if model_name_original in ('LinearRegression', 'SVR'):
-                    print('Inside Linear Pytorch model')
-                    device = "cpu"
-                    if model_name in 'SVR':
-                        print("SVR model uses hingeloss")
-                        loss = True
-                    print(f"X_train_normalized shape: {X_train_normalized.shape}")
-                    model_cp = LinearRegression(input_dim=window_size)
-                    trained_model, training_time = train_pytorch_model_LR(model_cp, X_train_normalized, y_train_normalized, loss=False)
-                    y_pred_normalized, inference_time = test_pytorch_model_LR(trained_model, X_test_normalized, attention)
-                elif model_name_original in 'KNeighborsRegressor':
-                    training_time = 0.0
-                    trained_model = model_cp
-                    y_pred_normalized, inference_time = test_pytorch_model_KNR(model_cp, X_train_normalized, y_train_normalized, X_test_normalized)
+        print(model_name)
+        model_memory = 0
+        print(f"X_train_normalized shape: {X_train_normalized.shape}")
+        print(f"y_train_normalized shape: {y_train_normalized.shape}")
+        print(f"X_test_normalized shape: {X_test_normalized.shape}")
+        torch.manual_seed(seed)
+        attention = False
+        if model_name in ('LinearRegression', 'SVR'):
+            print('Inside Linear Pytorch model')
+            if 'SVR' in model_name:
+                print("SVR model uses hingeloss")
+                loss = True
+            print(f"X_train_normalized shape: {X_train_normalized.shape}")
+            model_cp = LinearRegression(input_dim=window_size)
+            print(f"Model: {model_cp}")
+            trained_model, training_time = train_pytorch_model_LR(model_cp, X_train_normalized, y_train_normalized, loss=False)
+            y_pred_normalized, inference_time = test_pytorch_model_LR(trained_model, X_test_normalized, attention)
 
-                else:
-                    if 'LSTM_ATTN' in model_name:
-                        print('Inside LSTM ATTN')
-                        attention = True
-                        model_cp = LSTMModelWithAttention(input_size=window_size, num_layers=2, hidden_size=64, output_size=1)
+        else:
+            if 'LSTM_ATTN' in model_name:
+                print('Inside LSTM ATTN')
+                attention = True
+                model_cp = LSTMModelWithAttention(input_size=window_size, num_layers=2, hidden_size=64, output_size=1)
                     
-                    model_cp.to(device)
-                    print(f"Model: {model_cp}")
-                    trained_model, training_time = train_pytorch_model(model_cp, X_train_normalized, y_train_normalized, attention, device)
-                    y_pred_normalized, inference_time = test_pytorch_model(trained_model, X_test_normalized, attention, device)
+            model_cp.to(device)
+            print(f"Model: {model_cp}")
+            trained_model, training_time = train_pytorch_model(model_cp, X_train_normalized, y_train_normalized, attention, device)
+            y_pred_normalized, inference_time = test_pytorch_model(trained_model, X_test_normalized, attention, device)
                 
-                model_memory = model_memory_usage_alternative(trained_model)
-                print(f"Model Memory: {model_memory}")
+        model_memory = model_memory_usage_alternative(trained_model)
+        print(f"Model Memory: {model_memory}")
                 
-            # DENORMALIZE PREDICTIONS BEFORE CALCULATING METRICS
-            y_pred = denormalize_predictions(y_pred_normalized, NORMALIZATION, scaler_y, y_min, y_max)
+    # DENORMALIZE PREDICTIONS BEFORE CALCULATING METRICS
+    y_pred = denormalize_predictions(y_pred_normalized, NORMALIZATION, scaler_y, y_min, y_max)
 
             
-            # CALCULATE METRICS
-            metrics = calculate_metrics(y_test, y_pred)
+    # CALCULATE METRICS
+    metrics = calculate_metrics(y_test, y_pred)
 
-            result = {
+    result = {
                 'Model': model_name,
                 'Window Size': window_size,
                 'MAE': metrics['mae'],
@@ -263,11 +258,11 @@ def plot_predictions(window_size = None,
                 'Training_time': training_time,
                 'Inference_time': inference_time,
                 'Model memory (MB)': model_memory
-            }
-            # SAVE PREDICTIONS   
-            save_predictions(args, model_name, seed, y_test, y_pred, training_time,inference_time,model_memory,model, window_size, result)
+    }
+    # SAVE PREDICTIONS   
+    save_predictions(args, model_name, seed, y_test, y_pred, training_time,inference_time,model_memory,model, window_size, result)
           
-            results.append(result)
+    results.append(result)
 
 
     return results
@@ -286,19 +281,18 @@ def main(args):
 
     models_cp = {
                 # 'XGBRegressor': XGBRegressor(random_state=0),
-                # 'LinearRegression':0,
-                # 'KNeighborsRegressor': KNNRegressor(), 
+                # 'LinearRegression': 0,
+                # # 'KNeighborsRegressor': KNNRegressor(k=5), 
                 # 'RandomForestRegressor': RandomForestRegressor(random_state=0),
-                # 'MLPRegressor': MLPRegressor(random_state=0),
                 # 'DecisionTreeRegressor': DecisionTreeRegressor(random_state=0),
                 # 'AdaBoostRegressor': AdaBoostRegressor(random_state=0),
                 # 'SGDRegressor': SGDRegressor(random_state=0),
                 # 'PassiveAggressiveRegressor': PassiveAggressiveRegressor(random_state=0),
-                # 'SVR': 0,
+                # 'SVR': LinearRegression(input_dim=6),
                 # 'LSTM': LSTMModel(input_size=1, num_layers=2, hidden_size=64, output_size=1),
-                'GRU': GRUModel(input_size=1, hidden_size=64),
+                # 'GRU': GRUModel(input_size=1, hidden_size=64),
                 # 'BI-LSTM': BiLSTMModel(input_size=1, hidden_size=64),
-                # 'LSTM_ATTN': 0,
+                'LSTM_ATTN': LSTMModelWithAttention(input_size=6, num_layers=2, hidden_size=64, output_size=1),
                 # 'Pytorch': MyTorchModel(),
                 # Pytorch attention models --> https://gitlab.com/CeADARIreland/UCD/IDG/UCD_FUN_HORIZON_ICOS/-/blob/main/src/CPU_orangepi_forecasting/5_attention_models.ipynb?ref_type=heads
         
@@ -310,8 +304,8 @@ def main(args):
         
         for seed in range(args.num_seeds):
             
-            for model_name in models_cp:
-                for i, winsize in enumerate(args.window_sizes):# for each seed, run all defined windows
+            for model_name in models_cp:# for each seed, run all defined windows
+                for i, winsize in enumerate(args.window_sizes):
                     if model_name == 'XGBRegressor':
                         #subsample will define the % of training data to be used for each tree:hard to replicate same seeds each time
                         random = np.random.uniform(0.5, 1)
@@ -320,7 +314,7 @@ def main(args):
                     if isinstance(models_cp.get(model_name), BaseEstimator):
                         print(f"The value for key '{model_name}' is a scikit-learn model instance.")
                         np.random.seed(seed)
-                        if model_name in ('RandomForestRegressor', 'MLPRegressor', 'DecisionTreeRegressor', 'AdaBoostRegressor', 'PassiveAggressiveRegressor', 'SGDRegressor'):
+                        if model_name in ('RandomForestRegressor','DecisionTreeRegressor', 'AdaBoostRegressor', 'PassiveAggressiveRegressor', 'SGDRegressor'):
                             print(model_name)
                             models_cp[model_name].set_params(random_state=seed)
                     # Pytorch models
@@ -334,11 +328,13 @@ def main(args):
                         elif model_name == 'BI-LSTM':
                             models_cp[model_name] = BiLSTMModel(input_size=1, hidden_size=64)
                         elif model_name == 'LSTM_ATTN':
-                            print(model_name)
+                            models_cp[model_name] = LSTMModelWithAttention(input_size=winsize, num_layers=2, hidden_size=64, output_size=1)
                         elif model_name == 'KNeighborsRegressor':
                             models_cp[model_name] = KNNRegressor(k=5)
-                    elif model_name in ('LinearRegression','SVR'):
-                            print(model_name)
+                    elif model_name == 'LinearRegression':
+                        models_cp[model_name] = LinearRegression(input_dim=winsize)
+                    elif model_name == ('SVR'):
+                        models_cp[model_name] = LinearRegression(input_dim=winsize)
     
                     else:
                         np.random.seed(seed)
@@ -349,7 +345,8 @@ def main(args):
                                              output_file      = args.output_file, 
                                              AUTOREGRESSIVE   = args.autoregressive,
                                              eval             = args.eval,
-                                             models           = models_cp,
+                                             model           = models_cp[model_name],
+                                             model_name      = model_name,
                                              model_path       = args.model_path,
                                              seed             = seed)
                 
