@@ -281,8 +281,7 @@ def main(args):
 
     models_cp = {
                 # 'XGBRegressor': XGBRegressor(random_state=0),
-                # 'LinearRegression': 0,
-                # # 'KNeighborsRegressor': KNNRegressor(k=5), 
+                # 'LinearRegression': LinearRegression(input_dim=6),
                 # 'RandomForestRegressor': RandomForestRegressor(random_state=0),
                 # 'DecisionTreeRegressor': DecisionTreeRegressor(random_state=0),
                 # 'AdaBoostRegressor': AdaBoostRegressor(random_state=0),
@@ -293,9 +292,6 @@ def main(args):
                 # 'GRU': GRUModel(input_size=1, hidden_size=64),
                 # 'BI-LSTM': BiLSTMModel(input_size=1, hidden_size=64),
                 'LSTM_ATTN': LSTMModelWithAttention(input_size=6, num_layers=2, hidden_size=64, output_size=1),
-                # 'Pytorch': MyTorchModel(),
-                # Pytorch attention models --> https://gitlab.com/CeADARIreland/UCD/IDG/UCD_FUN_HORIZON_ICOS/-/blob/main/src/CPU_orangepi_forecasting/5_attention_models.ipynb?ref_type=heads
-        
             }
     # fix the seed for reproducibility: on this section we ensure that the seed will be variable per seed-cycle
     if args.eval:
@@ -329,12 +325,10 @@ def main(args):
                             models_cp[model_name] = BiLSTMModel(input_size=1, hidden_size=64)
                         elif model_name == 'LSTM_ATTN':
                             models_cp[model_name] = LSTMModelWithAttention(input_size=winsize, num_layers=2, hidden_size=64, output_size=1)
-                        elif model_name == 'KNeighborsRegressor':
-                            models_cp[model_name] = KNNRegressor(k=5)
-                    elif model_name == 'LinearRegression':
-                        models_cp[model_name] = LinearRegression(input_dim=winsize)
-                    elif model_name == ('SVR'):
-                        models_cp[model_name] = LinearRegression(input_dim=winsize)
+                        elif model_name == 'LinearRegression':
+                            models_cp[model_name] = LinearRegression(input_dim=winsize)
+                        elif model_name == ('SVR'):
+                            models_cp[model_name] = LinearRegression(input_dim=winsize)
     
                     else:
                         np.random.seed(seed)
