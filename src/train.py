@@ -218,15 +218,3 @@ def test_pytorch_model_LR(model, X_test_normalized, attention):
     inference_time = end_time - start_time
 
     return y_pred_normalized, inference_time
-
-def test_pytorch_model_KNR(model, X_train_normalized, y_train_normalized, X_test_normalized):
-    start_time = time.time()
-    X_train_tensor = torch.from_numpy(np.array(X_train_normalized)).float()
-    y_train_tensor = torch.from_numpy(np.array(y_train_normalized)).float()
-    X_test_tensor = torch.from_numpy(np.array(X_test_normalized)).float()
-    predictions = model(X_train_tensor, y_train_tensor, X_test_tensor)
-    y_pred_normalized = np.array(predictions)
-    end_time = time.time()
-    inference_time = end_time - start_time
-
-    return y_pred_normalized, inference_time
