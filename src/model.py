@@ -88,16 +88,3 @@ class LinearRegression(nn.Module):
     def forward(self, X): 
         out = self.linear(X)
         return out.squeeze(1)  # Squeeze to get (N,) shape instead of (N,1)
-
-# Define KNN regressor
-class KNNRegressor(nn.Module):
-    def __init__(self, k=5):
-        super(KNNRegressor, self).__init__()
-        self.k = k
-
-    def forward(self, X_train, y_train, X_test):
-        distances = torch.cdist(X_test, X_train)  # Compute distances between test and training points
-        _, indices = torch.topk(distances, self.k, largest=False)  # Find indices of k nearest neighbors
-        knn_outputs = y_train[indices]  # Get outputs of k nearest neighbors
-        predictions = torch.mean(knn_outputs, dim=1)  # Take the average of outputs as predictions
-        return predictions
