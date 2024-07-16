@@ -45,8 +45,8 @@ models/
 *.pickle
 *.mdb
 **/*.mdb
-**/*.png
-*.png
+#**/*.png
+#*.png
 **/*.pdf
 *.pdf
 **/*.tfrecords
