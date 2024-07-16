@@ -114,7 +114,7 @@ def load_orangepi_data_per_hour():
     
     return sampled_df
     
-def series_to_supervised(data, n_in=1, n_out=1, dropnan=True, autoregressive=True):
+def ts_supervised_structure(data, n_in=1, n_out=1, dropnan=True, autoregressive=True):
     no_autoregressive = not(autoregressive)
     if no_autoregressive:
         n_in = n_in - 1

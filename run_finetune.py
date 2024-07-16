@@ -52,7 +52,7 @@ from xgboost import XGBRegressor
 from src.utils import save_timestamps, store_pickle_model, save_predictions
 import src.misc as misc
 from src.misc import NativeScalerWithGradNormCount as NativeScaler
-from src.datasets import load_orangepi_data, normalize_data, series_to_supervised, structure, denormalize_predictions,load_data
+from src.datasets import load_orangepi_data, normalize_data, ts_supervised_structure, structure, denormalize_predictions,load_data
 from src.metrics import symmetric_mean_absolute_percentage_error, mean_absolute_scaled_error, mean_absolute_percentage_error, mean_squared_error, mean_absolute_error, r2_score, calculate_metrics
 from src.train import train_xgb_model, test_xgb_model_update, train_river_model, test_river_model, train_sklearn_model, test_sklearn_model, train_sklearn_partial_fit,test_sklearn_partial_fit
 from src.memory import bytes_to_mb,model_memory_usage_alternative
@@ -402,8 +402,8 @@ def train_and_evaluate(seed, args):
     
     AUTOREGRESSIVE=True
 
-    supervised_train_data = series_to_supervised(data_train[["target"]], n_in=context_length, n_out=1, autoregressive=AUTOREGRESSIVE)
-    supervised_test_data = series_to_supervised(data_test[["target"]], n_in=context_length, n_out=1, autoregressive=AUTOREGRESSIVE)
+    supervised_train_data = ts_supervised_structure(data_train[["target"]], n_in=context_length, n_out=1, autoregressive=AUTOREGRESSIVE)
+    supervised_test_data = ts_supervised_structure(data_test[["target"]], n_in=context_length, n_out=1, autoregressive=AUTOREGRESSIVE)
     X_train = supervised_train_data.iloc[:,:-1] 
     y_train = supervised_train_data.iloc[:,-1] 
     X_test = supervised_test_data.iloc[:,:-1] 
