@@ -59,6 +59,10 @@ Finetune and test Lag-Llama over different context lengths (32, 64, 128, 256) wi
 python run_finetune.py --output_file exp3_REAL_parallel --output_folder Exp3 --model_path ./models/lag_llama_models/lag-llama.ckpt --max_epochs 50 --num_seeds 20 --eval_multiple
 ```
 
+Results 
+![exp3][https://github.com/sebasmos/AML4CPU/blob/main/data/exp3.png]
+
+
 ### License
 
 This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
