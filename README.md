@@ -1,4 +1,11 @@
-# AML4CPU: Implementation with PyTorch, River, and ScikitLearn
+# AML4CPU: Implementation of Adaptive Machine Learning for Resource-Constrained Environments
+
+Official PyTorch and River implementation of *Adaptive Machine Learning for Resource-Constrained Environments* presented at DELTA 2024, ACM SIGKDD KDD 2024, Barcelona, Spain.
+
+Please cite the following paper when using AML4CPU:
+```
+S. A. Cajas, J. Samanta, A. L. Suárez-Cetrulo, and R. S. Carbajo, "Adaptive Machine Learning for Resource-Constrained Environments," in Discovering Drift Phenomena in Evolving Landscape (DELTA 2024) Workshop at ACM SIGKDD International Conference on Knowledge Discovery and Data Mining (KDD 2024), Barcelona, Catalonia, Spain, Aug. 26, 2024.
+```
 
 ### Contents
 
@@ -72,3 +79,19 @@ python run_finetune.py --output_file exp3_REAL_parallel --output_folder Exp3 --m
 ### License
 
 This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+
+Please cite as:
+
+```
+@inproceedings{Cajas2024,
+  author    = {Sebastián Andrés Cajas and
+               Jaydeep Samanta and
+               Andrés L. Suárez-Cetrulo and
+               Ricardo Simón Carbajo},
+  title     = {Adaptive Machine Learning for Resource-Constrained Environments},
+  booktitle = {Discovering Drift Phenomena in Evolving Landscape (DELTA 2024) Workshop at ACM SIGKDD International Conference on Knowledge Discovery and Data Mining (KDD 2024)},
+  address   = {Barcelona, Catalonia, Spain},
+  year      = {2024},
+  month     = {August 26},
+}
+```
