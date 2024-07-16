@@ -80,6 +80,10 @@ python run_finetune.py --output_file exp3_REAL_parallel --output_folder Exp3 --m
 
 This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
+### Acknoledgements
+
+We are grateful to our colleagues at the EU Horizon project ICOS and Ireland’s Centre for Applied AI for helping to start and shape this research effort. Our advancement has been made possible by funding from the European Union’s HORIZON research and innovation program (Grant No. 101070177).
+
 Please cite as:
 
 ```
