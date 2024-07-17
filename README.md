@@ -43,7 +43,7 @@ Run the holdout evaluation script:
 python run_holdout.py --output_file 'exp1' --output_folder Exp1 --num_seeds 20
 ```
 
-![exp1](https://github.com/sebasmos/AML4CPU/blob/main/data/exp1.png)
+![exp2](https://github.com/sebasmos/AML4CPU/blob/main/data/exp2.png)
 
 ### Experiment 2: Pre-sequential Evaluations
 
@@ -51,10 +51,7 @@ Run the pre-sequential evaluation script:
 ```bash
 python run_pre_sequential.py --output_file 'exp2' --eval --output_folder Exp2 --num_seeds 20
 ```
-
-![exp2](https://github.com/sebasmos/AML4CPU/blob/main/data/exp2.png)
-
-
+![exp1](https://github.com/sebasmos/AML4CPU/blob/main/data/exp1.png)
 
 ### Experiment 3: Zero-shot and Fine-tuning with Lag-Llama
 
