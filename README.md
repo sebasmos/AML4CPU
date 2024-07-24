@@ -1,4 +1,11 @@
-# AML4CPU: Implementation with PyTorch, River, and ScikitLearn
+# AML4CPU: Implementation of Adaptive Machine Learning for Resource-Constrained Environments
+
+Official PyTorch and River implementation of *Adaptive Machine Learning for Resource-Constrained Environments* presented at DELTA 2024, ACM SIGKDD KDD 2024, Barcelona, Spain.
+
+Please cite the following paper when using AML4CPU:
+```
+S. A. Cajas, J. Samanta, A. L. Suárez-Cetrulo, and R. S. Carbajo, "Adaptive Machine Learning for Resource-Constrained Environments," in Discovering Drift Phenomena in Evolving Landscape (DELTA 2024) Workshop at ACM SIGKDD International Conference on Knowledge Discovery and Data Mining (KDD 2024), Barcelona, Catalonia, Spain, Aug. 26, 2024.
+```
 
 ### Contents
 
@@ -36,7 +43,7 @@ Run the holdout evaluation script:
 python run_holdout.py --output_file 'exp1' --output_folder Exp1 --num_seeds 20
 ```
 
-![exp1](https://github.com/sebasmos/AML4CPU/blob/main/data/exp1.png)
+![exp2](https://github.com/sebasmos/AML4CPU/blob/main/data/exp2.png)
 
 ### Experiment 2: Pre-sequential Evaluations
 
@@ -44,10 +51,7 @@ Run the pre-sequential evaluation script:
 ```bash
 python run_pre_sequential.py --output_file 'exp2' --eval --output_folder Exp2 --num_seeds 20
 ```
-
-![exp2](https://github.com/sebasmos/AML4CPU/blob/main/data/exp2.png)
-
-
+![exp1](https://github.com/sebasmos/AML4CPU/blob/main/data/exp1.png)
 
 ### Experiment 3: Zero-shot and Fine-tuning with Lag-Llama
 
@@ -72,3 +76,23 @@ python run_finetune.py --output_file exp3_REAL_parallel --output_folder Exp3 --m
 ### License
 
 This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+
+### Acknoledgements
+
+We are grateful to our colleagues at the EU Horizon project ICOS and Ireland’s Centre for Applied AI for helping to start and shape this research effort. Our advancement has been made possible by funding from the European Union’s HORIZON research and innovation program (Grant No. 101070177).
+
+Please cite as:
+
+```
+@inproceedings{Cajas2024,
+  author    = {Sebastián Andrés Cajas and
+               Jaydeep Samanta and
+               Andrés L. Suárez-Cetrulo and
+               Ricardo Simón Carbajo},
+  title     = {Adaptive Machine Learning for Resource-Constrained Environments},
+  booktitle = {Discovering Drift Phenomena in Evolving Landscape (DELTA 2024) Workshop at ACM SIGKDD International Conference on Knowledge Discovery and Data Mining (KDD 2024)},
+  address   = {Barcelona, Catalonia, Spain},
+  year      = {2024},
+  month     = {August 26},
+}
+```
