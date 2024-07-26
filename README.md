@@ -13,6 +13,9 @@ S. A. Cajas, J. Samanta, A. L. Suárez-Cetrulo, and R. S. Carbajo, "Adaptive Mac
 - [x] Pre-sequential Script - Experiment 2: `run_pre_sequential.py`
 - [x] Zero-shot and Fine-tuning with Lag-Llama: `run_finetune.py`
 
+
+🇪🇺 This work has received funding from the European Union's HORIZON research and innovation programme under grant agreement No. 101070177.
+
 ## Setting Up Your Environment
 
 Let's start by setting up your environment:
