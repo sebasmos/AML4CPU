@@ -6,6 +6,7 @@ Please cite the following paper when using AML4CPU:
 ```
 S. A. Cajas, J. Samanta, A. L. Suárez-Cetrulo, and R. S. Carbajo, "Adaptive Machine Learning for Resource-Constrained Environments," in Discovering Drift Phenomena in Evolving Landscape (DELTA 2024) Workshop at ACM SIGKDD International Conference on Knowledge Discovery and Data Mining (KDD 2024), Barcelona, Catalonia, Spain, Aug. 26, 2024.
 ```
+The paper is available at this [link](https://aiimlab.org/pdf/events/KDD_2024_Workshop_On_Discovering_Drift_Phenomena_in_Evolving_Landscape_DELTA/Adaptive%20Machine%20Learning%20for%20Resource-Constrained%20Environments.pdf).
 
 ### Contents
 
