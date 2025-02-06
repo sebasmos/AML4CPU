@@ -5,7 +5,7 @@
 Official PyTorch and River implementation of *Adaptive Machine Learning for Resource-Constrained Environments* presented at DELTA 2024, ACM SIGKDD KDD 2024, Barcelona, Spain.
 
 - 📄 **Paper-Conference**: [Adaptive Machine Learning for Resource-Constrained Environments](https://aiimlab.org/pdf/events/KDD_2024_Workshop_On_Discovering_Drift_Phenomena_in_Evolving_Landscape_DELTA/Adaptive%20Machine%20Learning%20for%20Resource-Constrained%20Environments.pdf)
-- 🤗 **Dataset on HuggingFace**: [adaptive_cpu_utilisation_dataset](https://huggingface.co/datasets/ICOS-AI/cpu_utilisation_dataset)
+- 🤗 **Dataset on HuggingFace**: [adaptive_cpu_utilisation_dataset](https://huggingface.co/datasets/ICOS-AI/synthetic_cpu_utilization)
 - 🤗 **Models on HuggingFace**: [adaptive_cpu_utilisation_prediction_models](https://huggingface.co/ICOS-AI/adaptive_cpu_utilisation_prediction_models)
 - 📊 **Poster**: [View Poster](https://zenodo.org/records/14075777)
 - 📄 **Paper (Online)**: [View Paper](https://zenodo.org/records/14106065)
