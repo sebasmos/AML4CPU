@@ -1,12 +1,21 @@
+[![LICENSE](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/sebasmos/AML4CPU/blob/main/LICENSE)
+
 # AML4CPU: Implementation of Adaptive Machine Learning for Resource-Constrained Environments
 
 Official PyTorch and River implementation of *Adaptive Machine Learning for Resource-Constrained Environments* presented at DELTA 2024, ACM SIGKDD KDD 2024, Barcelona, Spain.
 
-Please cite the following paper when using AML4CPU:
-```
-S. A. Cajas, J. Samanta, A. L. Suárez-Cetrulo, and R. S. Carbajo, "Adaptive Machine Learning for Resource-Constrained Environments," in Discovering Drift Phenomena in Evolving Landscape (DELTA 2024) Workshop at ACM SIGKDD International Conference on Knowledge Discovery and Data Mining (KDD 2024), Barcelona, Catalonia, Spain, Aug. 26, 2024.
-```
-The paper is available at this [link](https://aiimlab.org/pdf/events/KDD_2024_Workshop_On_Discovering_Drift_Phenomena_in_Evolving_Landscape_DELTA/Adaptive%20Machine%20Learning%20for%20Resource-Constrained%20Environments.pdf).
+- 📄 **Paper-Conference**: [Adaptive Machine Learning for Resource-Constrained Environments](https://aiimlab.org/pdf/events/KDD_2024_Workshop_On_Discovering_Drift_Phenomena_in_Evolving_Landscape_DELTA/Adaptive%20Machine%20Learning%20for%20Resource-Constrained%20Environments.pdf)
+- 🤗 **Dataset on HuggingFace**: [adaptive_cpu_utilisation_dataset](https://huggingface.co/datasets/ICOS-AI/adaptive_cpu_utilisation_dataset/tree/main)
+- 🤗 **Models on HuggingFace**: [adaptive_cpu_utilisation_prediction_models](https://huggingface.co/ICOS-AI/adaptive_cpu_utilisation_prediction_models)
+- 📊 **Poster**: [View Poster](https://zenodo.org/records/14075777)
+- 📄 **Paper (Online)**: [View Paper](https://zenodo.org/records/14106065)
+- **GitHub Repository**: [AML4CPU](https://github.com/sebasmos/AML4CPU/)
+  
+
+
+# AML4CPU: Implementation of Adaptive Machine Learning for Resource-Constrained Environments
+
+Official PyTorch and River implementation of *Adaptive Machine Learning for Resource-Constrained Environments* presented at DELTA 2024, ACM SIGKDD KDD 2024, Barcelona, Spain.
 
 ### Contents
 
