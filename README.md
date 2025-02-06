@@ -10,12 +10,6 @@ Official PyTorch and River implementation of *Adaptive Machine Learning for Reso
 - 📊 **Poster**: [View Poster](https://zenodo.org/records/14075777)
 - 📄 **Paper (Online)**: [View Paper](https://zenodo.org/records/14106065)
 - **GitHub Repository**: [AML4CPU](https://github.com/sebasmos/AML4CPU/)
-  
-
-
-# AML4CPU: Implementation of Adaptive Machine Learning for Resource-Constrained Environments
-
-Official PyTorch and River implementation of *Adaptive Machine Learning for Resource-Constrained Environments* presented at DELTA 2024, ACM SIGKDD KDD 2024, Barcelona, Spain.
 
 ### Contents
 
