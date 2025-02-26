@@ -4,6 +4,7 @@
 
 Official PyTorch and River implementation of *Adaptive Machine Learning for Resource-Constrained Environments* presented at DELTA 2024, ACM SIGKDD KDD 2024, Barcelona, Spain.
 
+- 📄 **Paper**: [View on Lecture Notes in Computer Science - LNCS](https://link.springer.com/chapter/10.1007/978-3-031-82346-6_1)
 - 📄 **Paper-Conference**: [Adaptive Machine Learning for Resource-Constrained Environments](https://aiimlab.org/pdf/events/KDD_2024_Workshop_On_Discovering_Drift_Phenomena_in_Evolving_Landscape_DELTA/Adaptive%20Machine%20Learning%20for%20Resource-Constrained%20Environments.pdf)
 - 🤗 **Dataset on HuggingFace**: [adaptive_cpu_utilisation_dataset](https://huggingface.co/datasets/ICOS-AI/synthetic_cpu_utilization)
 - 🤗 **Models on HuggingFace**: [adaptive_cpu_utilisation_prediction_models](https://huggingface.co/ICOS-AI/adaptive_cpu_utilisation_prediction_models)
@@ -91,15 +92,22 @@ We are grateful to our colleagues at the EU Horizon project ICOS and Ireland’s
 Please cite as:
 
 ```
-@inproceedings{Cajas2024,
-  author    = {Sebastián Andrés Cajas and
-               Jaydeep Samanta and
-               Andrés L. Suárez-Cetrulo and
-               Ricardo Simón Carbajo},
-  title     = {Adaptive Machine Learning for Resource-Constrained Environments},
-  booktitle = {Discovering Drift Phenomena in Evolving Landscape (DELTA 2024) Workshop at ACM SIGKDD International Conference on Knowledge Discovery and Data Mining (KDD 2024)},
-  address   = {Barcelona, Catalonia, Spain},
-  year      = {2024},
-  month     = {August 26},
+@InProceedings{10.1007/978-3-031-82346-6_1,
+author="Ord{\'o}{\~{n}}ez, Sebasti{\'a}n A. Cajas
+and Samanta, Jaydeep
+and Su{\'a}rez-Cetrulo, Andr{\'e}s L.
+and Carbajo, Ricardo Sim{\'o}n",
+editor="Piangerelli, Marco
+and Prenkaj, Bardh
+and Rotalinti, Ylenia
+and Joshi, Ananya
+and Stilo, Giovanni",
+title="Adaptive Machine Learning for Resource-Constrained Environments",
+booktitle="Discovering Drift Phenomena in Evolving Landscapes",
+year="2025",
+publisher="Springer Nature Switzerland",
+address="Cham",
+pages="3--19",
+isbn="978-3-031-82346-6"
 }
 ```
