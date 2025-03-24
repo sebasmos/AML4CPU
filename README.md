@@ -92,22 +92,12 @@ We are grateful to our colleagues at the EU Horizon project ICOS and Ireland’s
 Please cite as:
 
 ```
-@InProceedings{10.1007/978-3-031-82346-6_1,
-author="Ord{\'o}{\~{n}}ez, Sebasti{\'a}n A. Cajas
-and Samanta, Jaydeep
-and Su{\'a}rez-Cetrulo, Andr{\'e}s L.
-and Carbajo, Ricardo Sim{\'o}n",
-editor="Piangerelli, Marco
-and Prenkaj, Bardh
-and Rotalinti, Ylenia
-and Joshi, Ananya
-and Stilo, Giovanni",
-title="Adaptive Machine Learning for Resource-Constrained Environments",
-booktitle="Discovering Drift Phenomena in Evolving Landscapes",
-year="2025",
-publisher="Springer Nature Switzerland",
-address="Cham",
-pages="3--19",
-isbn="978-3-031-82346-6"
+@inproceedings{ordonez2024adaptive,
+  title={Adaptive Machine Learning for Resource-Constrained Environments},
+  author={Ord{\'o}{\~n}ez, Sebasti{\'a}n A Cajas and Samanta, Jaydeep and Su{\'a}rez-Cetrulo, Andr{\'e}s L and Carbajo, Ricardo Sim{\'o}n},
+  booktitle={International Workshop on Discovering Drift Phenomena in Evolving Landscapes},
+  pages={3--19},
+  year={2024},
+  organization={Springer}
 }
 ```

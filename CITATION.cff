@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the following metadata."
+title: "AML4CPU: Adaptive Machine Learning for Resource-Constrained Environments"
+version: "1.0.0" 
+doi: "https://doi.org/10.1007/978-3-031-82346-6_1" 
+url: "https://github.com/sebasmos/AML4CPU"
+authors:
+  - family-names: "Cajas Ordóñez"
+    given-names: "Sebastián Andrés"
+  - family-names: "Samanta"
+    given-names: "Jaydeep"
+  - family-names: "Suárez-Cetrulo"
+    given-names: "Andrés L."
+  - family-names: "Simón Carbajo"
+    given-names: "Ricardo"
+date-released: "2024-08-26" 
+repository-code: "https://github.com/sebasmos/AML4CPU"
